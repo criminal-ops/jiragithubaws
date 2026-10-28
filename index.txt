@@ -1,1 +1,427 @@
+Part 1 — Prepare Jira
+Step 1. Open your existing Jira project
+1. Open Jira Cloud.
+2. Sign in.
+3. Open your existing project HGR.
+4. Select Backlog.
+5. Find your existing Sprint 1.
+Do not create a duplicate project or sprint.
+Step 2. Create the tasks
+Reuse your existing tasks if you already have them. Otherwise, create these tasks in HGR.
+Task	Summary
+1	Create GitHub repository
+2	Integrate GitHub with Jira
+3	Develop sample application
+4	Create AWS S3 bucket
+5	Integrate Jira with AWS
+6	Test the complete integration
 
+
+To create each task:
+1. Select Create.
+2. Choose project HGR.
+3. Choose issue type Task.
+4. Enter the summary.
+5. Enter a description.
+6. Select Create.
+For the AWS integration task, use this description:
+Configure Jira Automation to execute an AWS Systems Manager Automation document and verify that the AWS operation completes successfully.
+
+Jira will automatically assign an issue key, such as HGR-5. Use the real issue key displayed on your screen.
+Step 3. Add the tasks to Sprint 1
+1. Open Backlog.
+2. Locate Sprint 1.
+3. Move the tasks into that sprint if they are not already there.
+4. If the sprint is active, leave it active.
+5. Open the sprint board to verify the tasks.
+You will update the tasks as you complete the corresponding work.
+Part 2 — Connect GitHub to Jira
+Step 4. Open GitHub
+1. Open GitHub.
+2. Sign in to your existing account.
+3. Open the repository you want to use for the practical.
+Keep your existing repository.
+Step 5. Install the official integration
+1. Return to Jira.
+2. Select Apps → Explore more apps.
+3. Search for GitHub for Atlassian.
+4. Open the official app listing.
+5. Select Get app.
+6. Select Get it now, if displayed.
+7. Complete the installation.
+Official app: GitHub for Atlassian
+
+For Jira Cloud, Atlassian documents this app as the supported method for connecting GitHub development activity to Jira. Installation and organization connection may require Jira site administrator and GitHub organization-owner permissions. Atlassian Support
+Step 6. Connect your GitHub account
+After installation:
+1. In Jira, open Apps → Manage apps.
+2. Find GitHub for Atlassian.
+3. Open the app's setup or configuration page.
+4. Select Get started if displayed.
+5. Select Continue.
+6. Choose GitHub Cloud.
+7. Sign in to GitHub if prompted.
+8. Select the GitHub organization you want to connect.
+9. Select Connect if you have permission.
+10. Complete the authorization steps.
+If your repository belongs to your personal account rather than an organization, follow the app's instructions for making the repository available. Do not create a new organization unnecessarily.
+
+Expected result: The GitHub connection is shown as configured in Jira.
+Step 7. Create the sample application
+If your repository already contains a suitable project, use it. Otherwise, create a file called index.html with the following content:
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agile Project</title>
+</head>
+<body>
+    <h1>Student Management System</h1>
+    <p>Jira and GitHub Integration</p>
+    <p>AWS Integration</p>
+</body>
+</html>
+
+
+
+
+Save the file inside your local repository folder.
+Step 8. Push a commit linked to Jira
+Open PowerShell or the VS Code terminal inside the repository folder.
+
+Check the Git configuration:
+git status
+git remote -v
+
+If your repository is already configured correctly, continue without changing the remote.
+
+Find the Jira issue key for your GitHub task. In this example, we'll use HGR-2. Replace it with your actual key.
+
+Create a branch:
+git checkout -b HGR-2-create-repository
+
+If the branch already exists, use:
+git checkout HGR-2-create-repository
+
+Add and commit your changes:
+git add .
+git commit -m "HGR-2 Create project repository"
+
+Push the branch:
+git push -u origin HGR-2-create-repository
+
+If Git reports that origin does not exist, add your actual repository URL:
+git remote add origin YOUR_GITHUB_REPOSITORY_URL
+
+Then retry the push command.
+Step 9. Verify the GitHub integration
+1. Open Jira.
+2. Open the issue referenced in the branch and commit.
+3. Look for the Development section.
+4. Check whether the branch or commit appears.
+Expected result: GitHub development activity appears in the relevant Jira issue. Atlassian documents the use of Jira issue keys in branch names, commit messages, and pull request titles to associate development activity with work items. Atlassian Support
+
+
+
+--------------------------------------------------------------------------
+
+
+
+Part 3 — Create AWS storage
+Step 10. Sign in to AWS
+1. Open the AWS Management Console.
+2. Sign in to your existing account.
+3. Search for S3.
+4. Open Amazon S3.
+Use the AWS account you intend to connect to Jira.
+Step 11. Create the S3 bucket
+1. Select Create bucket.
+2. Enter a globally unique name, such as:
+   hgr-agile-project-2026-unique123
+3. Choose your intended AWS Region.
+4. Keep Block all public access enabled.
+5. Leave other settings at their defaults unless you have a specific requirement.
+6. Select Create bucket.
+Expected result: The bucket appears in the bucket list.
+Step 12. Upload the project file
+1. Open your new bucket.
+2. Select Upload.
+3. Select Add files.
+4. Choose index.html.
+5. Select Upload.
+6. Confirm that the file appears in the bucket's object list.
+At this stage, your AWS storage is ready. The next part will connect Jira Automation to AWS so Jira can trigger an AWS operation.
+Part 4 — Configure AWS Systems Manager for Jira
+This is the actual AWS integration. We will configure it so a Jira automation rule can run an AWS Systems Manager Automation document.
+
+The official setup requires:
+1. An AWS IAM role that Jira Automation can assume.
+2. A trust policy that permits the Atlassian Automation AWS account to assume that role.
+3. Permissions to run Systems Manager Automation documents.
+4. A connection to that role inside a Jira automation flow. Atlassian Support
+Step 13. Open AWS IAM
+1. Open the AWS Management Console.
+2. Search for IAM.
+3. Open Identity and Access Management (IAM).
+4. In the left navigation, select Roles.
+5. Select Create role.
+You are now creating a role that allows Jira Automation to access specific AWS operations.
+Step 14. Configure the trusted entity
+On the Create role screen:
+1. Find Trusted entity type.
+2. Select AWS account or Another AWS account, depending on the screen.
+3. Choose the option to specify an account ID.
+4. Enter the Atlassian Automation AWS account ID specified in Atlassian's official IAM setup instructions.
+5. Enable Require external ID if that option is shown.
+6. Enter an external ID of your choice, for example:
+   HGR-Jira-AWS-2026-Setup
+7. Save this external ID somewhere safe so you can enter the same value in Jira later.
+8. Continue to the permissions step.
+Important: Do not enter your own AWS account ID in the trusted-account field unless Atlassian's instructions explicitly tell you to. The trusted principal is the Atlassian Automation AWS account specified in the official instructions. The external ID is used to strengthen the role-assumption security check. Atlassian Support
+Step 15. Name the IAM role
+On the role details screen:
+1. Enter this role name:
+   atlassian-automation-hgr
+2. Add a description, such as:
+   Role for Jira Automation to run approved AWS Systems Manager Automation documents.
+3. Review the settings.
+4. Select Create role.
+The role name must begin with atlassian-automation-, as required by Atlassian's integration instructions. Atlassian Support
+Step 16. Add permissions to the IAM role
+We will give the role only the permissions needed to list and execute Systems Manager Automation documents and read AWS Region information.
+1. Open IAM → Roles.
+2. Select atlassian-automation-hgr.
+3. Open the Permissions tab.
+4. Select Add permissions → Create inline policy.
+5. Open the JSON editor.
+6. Replace the editor content with this policy:
+
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowSystemsManagerAutomation",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:ListDocuments",
+        "ssm:GetDocument",
+        "ssm:StartAutomationExecution"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AllowDescribeRegions",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeRegions"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+
+
+7. Select Next.
+8. Enter the policy name:
+   JiraAutomationSSMPermissions
+9. Select Create policy or the equivalent save action.
+These are the basic permissions Atlassian documents for listing and starting SSM Automation documents and fetching Region information. Additional permissions may be needed if your selected runbook performs other AWS operations. Atlassian Support
+Step 17. Check the role's trust relationship
+1. Open IAM.
+2. Select Roles.
+3. Open atlassian-automation-hgr.
+4. Select Trust relationships.
+5. Select Edit trust policy.
+The policy must trust the Atlassian Automation AWS account and require the external ID you configured.
+
+It should have this general structure:
+
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "ATLASSIAN_AUTOMATION_AWS_ACCOUNT_ID"
+      },
+      "Action": "sts:AssumeRole",
+      "Condition": {
+        "StringEquals": {
+          "sts:ExternalId": "HGR-Jira-AWS-2026-Setup"
+        }
+      }
+    }
+  ]
+}
+
+
+Replace ATLASSIAN_AUTOMATION_AWS_ACCOUNT_ID with the actual account ID provided in Atlassian's official instructions. If you used a different external ID, use that exact value instead.
+
+Do not save the placeholder text as your actual trust policy. The trust relationship must contain the correct Atlassian account ID and the same external ID you will enter in Jira.
+
+If you configured the trusted account and external ID during role creation, AWS may already have created the appropriate trust policy. In that case, verify it instead of replacing it unnecessarily.
+Step 18. Copy the role ARN
+1. Open the IAM role details.
+2. Find ARN.
+3. Copy the complete role ARN.
+It will look similar to:
+arn:aws:iam::123456789012:role/atlassian-automation-hgr
+
+This is an example format, not your actual ARN.
+
+You will need:
+- Role ARN: copied from AWS.
+- External ID: the exact value you entered when configuring the role.
+Keep both available for the Jira setup.
+Part 5 — Create a safe AWS Automation document
+We will create a small test runbook that returns a success message. This lets you demonstrate the Jira-to-AWS connection without restarting an EC2 instance, deleting resources, or changing your S3 bucket.
+
+AWS Systems Manager supports custom Automation documents, including documents created with YAML. AWS Documentation
+Step 19. Open Systems Manager
+1. Open the AWS Console.
+2. Search for Systems Manager.
+3. Open AWS Systems Manager.
+4. In the navigation panel, select Documents.
+5. Select Create document or Create automation, depending on the interface.
+6. Choose the option for an Automation document.
+If your interface offers Document Builder, you can use that instead. The following YAML approach is for the document editor.
+Step 20. Create the test runbook
+Enter the document name:
+
+HGR-JiraIntegrationTest
+
+Use this description:
+
+A safe test document for verifying Jira Automation to AWS Systems Manager integration.
+
+Enter the following YAML document content:
+
+
+description: "Safe test of Jira Automation to AWS Systems Manager"
+schemaVersion: "0.3"
+assumeRole: "{{ AutomationAssumeRole }}"
+parameters:
+  AutomationAssumeRole:
+    type: String
+    description: "IAM role assumed by Systems Manager Automation"
+mainSteps:
+  - name: IntegrationTest
+    action: aws:executeScript
+    description: "Return a test message without changing AWS resources"
+    inputs:
+      Runtime: python3.11
+      Handler: handler
+      Script: |
+        def handler(events, context):
+            return {
+                "status": "SUCCESS",
+                "message": "Jira-triggered AWS automation completed successfully"
+            }
+
+Before saving, review the content carefully.
+1. Select Create automation or the equivalent save action.
+2. Confirm that the document is created.
+3. Open the document details.
+4. Confirm the name is HGR-JiraIntegrationTest.
+Important: This document uses the AutomationAssumeRole parameter. The IAM role you supply when executing the document must exist and have the permissions required by the document. If your AWS console or document validator rejects the definition, check the error message and the current Systems Manager Automation document requirements before proceeding. Do not run an unverified document.
+Step 21. Create the Systems Manager execution role
+The runbook above uses AutomationAssumeRole. This is a separate role used by Systems Manager while executing the runbook; it is not the same as the atlassian-automation-hgr role that Jira assumes.
+1. Open IAM → Roles → Create role.
+2. Select AWS service as the trusted entity type.
+3. Choose Systems Manager as the use case, if available.
+4. Continue to the permissions step.
+5. Search for the AWS-managed policy AmazonSSMAutomationRole.
+6. Select it if appropriate for your account and the runbook you are using.
+7. Continue.
+8. Enter this role name:
+   HGR-SSM-Automation-ExecutionRole
+9. Create the role.
+10. Open the role details and copy its ARN.
+AWS documents the need for a suitable execution role when an Automation runbook performs operations that require AWS permissions. The required permissions depend on the actions in the runbook. AWS Documentation
+
+Security note: Review the permissions granted by AmazonSSMAutomationRole before using it. For a production environment, restrict permissions to the minimum needed. For a college demonstration, use only an account where you are authorized to create these roles.
+Step 22. Test the runbook in AWS before connecting Jira
+Testing it directly in AWS helps separate AWS configuration errors from Jira integration errors.
+1. Open Systems Manager → Automation.
+2. Select Execute automation.
+3. Search for HGR-JiraIntegrationTest.
+4. Select the document.
+5. Enter the ARN of HGR-SSM-Automation-ExecutionRole for AutomationAssumeRole.
+6. Select Execute.
+7. Open the execution details.
+8. Wait for the run to finish.
+Expected result: The automation execution reports success and returns the test message.
+
+If the run fails, open its step details and inspect the error before proceeding.
+Part 6 — Connect Jira Automation to AWS
+Step 23. Open Jira Automation
+1. Return to your Jira site.
+2. Open your existing project HGR.
+3. Locate Automation in the project navigation or project settings.
+4. Open it.
+5. Select Create rule or Create flow, depending on your Jira interface.
+Atlassian documents connecting an AWS action to a Jira automation flow. You need the appropriate Jira project permissions to create and manage the flow. Atlassian Support
+Step 24. Create the trigger
+For the first test, use a manual trigger if your Jira interface provides one. This avoids accidentally running the AWS action whenever an issue is edited.
+1. Select Add trigger.
+2. Search for a manual trigger, such as Manual trigger or Issue transitioned, depending on the available options.
+3. Select the trigger that best matches the practical requirement.
+If you use Issue transitioned, configure the trigger to run when the AWS integration task moves to In Progress.
+
+This makes the demonstration easy to understand: you change the task's status in Jira, and the rule attempts to execute the AWS operation.
+Step 25. Add the AWS action
+1. Select Add action.
+2. Search for an AWS action.
+3. Choose Run AWS SSM document or the equivalent Systems Manager Automation action.
+4. Select the AWS connection option when prompted.
+At this point, Jira needs the role ARN and external ID you configured earlier.
+Step 26. Connect the IAM role
+In the AWS connection dialog:
+1. Select Connect.
+2. Paste the role ARN for atlassian-automation-hgr.
+3. Enter the external ID you configured in the IAM trust relationship.
+4. Save the connection.
+Use the exact values from AWS. Do not use the ARN of HGR-SSM-Automation-ExecutionRole here; that role is for Systems Manager execution, while atlassian-automation-hgr is the role Jira Automation assumes.
+Step 27. Configure the AWS SSM action
+1. Select the AWS Region where you created HGR-JiraIntegrationTest.
+2. Choose the SSM document HGR-JiraIntegrationTest.
+3. Supply the document's required parameter, AutomationAssumeRole.
+4. Enter the ARN of HGR-SSM-Automation-ExecutionRole.
+5. Save the action.
+If Jira does not list the document, check the selected Region, the connection's IAM permissions, and whether the document was created successfully in AWS.
+Step 28. Save the Jira automation rule
+1. Give the rule a clear name:
+   HGR - Trigger AWS SSM Test
+2. Review the trigger and action.
+3. Save or enable the rule.
+4. Confirm that the rule appears in the project's automation list.
+Do not trigger it yet if the rule shows configuration errors.
+Part 7 — Run the complete integration test
+Step 29. Trigger the Jira rule
+If you configured the rule to trigger when an issue moves to In Progress:
+1. Open Jira project HGR.
+2. Open your AWS integration task.
+3. Change its status to In Progress.
+4. Wait for the automation rule to execute.
+5. Open the rule's Audit log.
+If you configured a manual trigger instead, open the issue and use the manual action to execute the rule.
+Step 30. Verify the result in Jira
+1. Open the automation rule's audit log.
+2. Find the latest execution.
+3. Check whether the AWS action succeeded.
+4. If it failed, open the execution details and read the error message.
+Expected result: Jira reports a successful automation execution, and the corresponding Systems Manager execution completes successfully.
+Step 31. Verify the result in AWS
+1. Open the AWS Console.
+2. Search for Systems Manager.
+3. Open Automation.
+4. Find the latest execution of HGR-JiraIntegrationTest.
+5. Open its details.
+6. Confirm that the execution status is Success.
+7. Open the step details and confirm the test message.
+You have now demonstrated an actual Jira-triggered AWS operation—not merely an S3 link pasted into a Jira issue.
